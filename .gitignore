@@ -7,3 +7,6 @@ target/classes/com/learn/Lox.class
 target/classes/com/learn/Scanner.class
 target/classes/com/learn/Token.class
 target/classes/com/learn/TokenType.class
+target/classes/com/learn/Expr$Binary.class
+target/classes/com/learn/tool/GenerateAst.class
+target/classes/com/learn/Expr.class
