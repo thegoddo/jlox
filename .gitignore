@@ -10,3 +10,9 @@ target/classes/com/learn/TokenType.class
 target/classes/com/learn/Expr$Binary.class
 target/classes/com/learn/tool/GenerateAst.class
 target/classes/com/learn/Expr.class
+target/classes/com/learn/Expr$Grouping.class
+target/classes/com/learn/Expr$Literal.class
+target/classes/com/learn/Expr$Unary.class
+target/classes/com/learn/Expr$Visitor.class
+target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst
+target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst
