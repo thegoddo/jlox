@@ -1,13 +1,13 @@
 package com.learn;
 
+import static com.learn.TokenType.*;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.learn.TokenType.*;
-
-public class Scanner {
+class Scanner {
     private final String source;
     private final List<Token> tokens = new ArrayList<>();
     private int start = 0;
@@ -42,19 +42,16 @@ public class Scanner {
 
     List<Token> scanTokens() {
         while (!isAtEnd()) {
-            // We are beginning of the next lexeme
+            // We are at the beginning of the next lexeme.
             start = current;
             scanToken();
         }
 
-        // Add EOF to every token
-        tokens.add((new Token(EOF, "", null, line)));
+        tokens.add(new Token(EOF, "", null, line));
         return tokens;
     }
 
     private void scanToken() {
-        // Keeps scanning even after lexical error is found. Don't worry, hadError won't
-        // let us run the code.
         char c = advance();
         switch (c) {
             case '(':
@@ -101,8 +98,7 @@ public class Scanner {
                 break;
             case '/':
                 if (match('/')) {
-                    // A comment goes until the end of the line
-                    // Comments are lexemes too, but interpreter doesn't care about them.
+                    // A comment goes until the end of the line.
                     while (peek() != '\n' && !isAtEnd())
                         advance();
                 } else {
@@ -110,36 +106,39 @@ public class Scanner {
                 }
                 break;
 
-            // skip other meaningless characters: newlines and whitespaces
             case ' ':
             case '\r':
             case '\t':
-                // Ignores whitespaces
+                // Ignore whitespace.
                 break;
+
             case '\n':
                 line++;
                 break;
+
             case '"':
                 string();
                 break;
+
             default:
                 if (isDigit(c)) {
                     number();
                 } else if (isAlpha(c)) {
                     identifier();
                 } else {
-                    Lox.error(line, "Unexpected character");
+                    Lox.error(line, "Unexpected character.");
                 }
-                Lox.error(line, "Unexpected character");
                 break;
         }
     }
 
     private void identifier() {
-        while (isAlphNumeric(peek()))
+        while (isAlphaNumeric(peek()))
             advance();
 
+        // See if the identifier is a reserved word.
         String text = source.substring(start, current);
+
         TokenType type = keywords.get(text);
         if (type == null)
             type = IDENTIFIER;
@@ -150,6 +149,7 @@ public class Scanner {
         while (isDigit(peek()))
             advance();
 
+        // Look for a fractional part.
         if (peek() == '.' && isDigit(peekNext())) {
             // Consume the "."
             advance();
@@ -157,6 +157,7 @@ public class Scanner {
             while (isDigit(peek()))
                 advance();
         }
+
         addToken(NUMBER, Double.parseDouble(source.substring(start, current)));
     }
 
@@ -167,6 +168,7 @@ public class Scanner {
             advance();
         }
 
+        // Unterminated string.
         if (isAtEnd()) {
             Lox.error(line, "Unterminated string.");
             return;
@@ -187,17 +189,15 @@ public class Scanner {
             return false;
 
         current++;
-        return false;
+        return true;
     }
 
-    // Yet another helper
     private char peek() {
         if (isAtEnd())
             return '\0';
         return source.charAt(current);
     }
 
-    // Look for second "."
     private char peekNext() {
         if (current + 1 >= source.length())
             return '\0';
@@ -210,7 +210,7 @@ public class Scanner {
                 c == '_';
     }
 
-    private boolean isAlphNumeric(char c) {
+    private boolean isAlphaNumeric(char c) {
         return isAlpha(c) || isDigit(c);
     }
 
@@ -223,7 +223,8 @@ public class Scanner {
     }
 
     private char advance() {
-        return source.charAt(current++);
+        current++;
+        return source.charAt(current - 1);
     }
 
     private void addToken(TokenType type) {

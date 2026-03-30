@@ -1,12 +1,11 @@
 package com.learn;
 
-import static com.learn.TokenType.SEMICOLON;
+import static com.learn.TokenType.*;
 
+import java.util.ArrayList;
 import java.util.List;
-import com.learn.TokenType.*;
 
 class Parser {
-
     private static class ParseError extends RuntimeException {
     }
 
@@ -17,12 +16,32 @@ class Parser {
         this.tokens = tokens;
     }
 
-    Expr parse() {
-        try {
-            return expression();
-        } catch (ParseError error) {
-            return null;
+    List<Stmt> parse() {
+        List<Stmt> statements = new ArrayList<>();
+        while (!isAtEnd()) {
+            statements.add(statement());
         }
+
+        return statements;
+    }
+
+    private Stmt statement() {
+        if (match(PRINT))
+            return printStatement();
+
+        return expressionStatement();
+    }
+
+    private Stmt expressionStatement() {
+        Expr expr = expression();
+        consume(SEMICOLON, "Expect ';' after expression.");
+        return new Stmt.Expression(expr);
+    }
+
+    private Stmt printStatement() {
+        Expr value = expression();
+        consume(SEMICOLON, "Expect ';' after value.");
+        return new Stmt.Print(value);
     }
 
     private Expr expression() {
@@ -32,41 +51,43 @@ class Parser {
     private Expr equality() {
         Expr expr = comparison();
 
-        while (match(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL)) {
+        while (match(BANG_EQUAL, EQUAL_EQUAL)) {
             Token operator = previous();
             Expr right = comparison();
             expr = new Expr.Binary(expr, operator, right);
         }
+
         return expr;
     }
 
     private Expr comparison() {
-        Expr expr = term();
+        Expr expr = addition();
 
-        while (match(TokenType.GREATER, TokenType.GREATER_EQUAL, TokenType.LESS, TokenType.LESS_EQUAL)) {
+        while (match(GREATER, GREATER_EQUAL, LESS, LESS_EQUAL)) {
             Token operator = previous();
-            Expr right = term();
-            expr = new Expr.Binary(expr, operator, right);
-        }
-        return expr;
-    }
-
-    private Expr term() {
-        Expr expr = factor();
-
-        while (match(TokenType.MINUS, TokenType.PLUS)) {
-            Token operator = previous();
-            Expr right = factor();
+            Expr right = addition();
             expr = new Expr.Binary(expr, operator, right);
         }
 
         return expr;
     }
 
-    private Expr factor() {
+    private Expr addition() {
+        Expr expr = multiplication();
+
+        while (match(MINUS, PLUS)) {
+            Token operator = previous();
+            Expr right = multiplication();
+            expr = new Expr.Binary(expr, operator, right);
+        }
+
+        return expr;
+    }
+
+    private Expr multiplication() {
         Expr expr = unary();
 
-        while (match(TokenType.SLASH, TokenType.STAR)) {
+        while (match(SLASH, STAR)) {
             Token operator = previous();
             Expr right = unary();
             expr = new Expr.Binary(expr, operator, right);
@@ -76,7 +97,7 @@ class Parser {
     }
 
     private Expr unary() {
-        if (match(TokenType.BANG, TokenType.MINUS)) {
+        if (match(BANG, MINUS)) {
             Token operator = previous();
             Expr right = unary();
             return new Expr.Unary(operator, right);
@@ -86,35 +107,20 @@ class Parser {
     }
 
     private Expr primary() {
-        if (match(TokenType.FALSE))
+        if (match(FALSE))
             return new Expr.Literal(false);
-        if (match(TokenType.TRUE))
+        if (match(TRUE))
             return new Expr.Literal(true);
-        if (match(TokenType.NIL))
+        if (match(NIL))
             return new Expr.Literal(null);
 
-        if (match(TokenType.NUMBER, TokenType.STRING)) {
+        if (match(NUMBER, STRING)) {
             return new Expr.Literal(previous().literal);
         }
 
-        if (match(TokenType.SUPER)) {
-            Token keyword = previous();
-            consume(TokenType.DOT, "Expect '.' after 'super'.");
-            Token method = consume(TokenType.IDENTIFIER,
-                    "Expect superclass method name.");
-            return new Expr.Super(keyword, method);
-        }
-
-        if (match(TokenType.THIS))
-            return new Expr.This(previous());
-
-        if (match(TokenType.IDENTIFIER)) {
-            return new Expr.Variable(previous());
-        }
-
-        if (match(TokenType.LEFT_PAREN)) {
+        if (match(LEFT_PAREN)) {
             Expr expr = expression();
-            consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.");
+            consume(RIGHT_PAREN, "Expect ')' after expression.");
             return new Expr.Grouping(expr);
         }
 
@@ -128,6 +134,7 @@ class Parser {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -138,12 +145,10 @@ class Parser {
         throw error(peek(), message);
     }
 
-    private boolean check(TokenType type) {
-        if (isAtEnd()) {
+    private boolean check(TokenType tokenType) {
+        if (isAtEnd())
             return false;
-        }
-
-        return peek().type == type;
+        return peek().type == tokenType;
     }
 
     private Token advance() {
@@ -153,7 +158,7 @@ class Parser {
     }
 
     private boolean isAtEnd() {
-        return peek().type == TokenType.EOF;
+        return peek().type == EOF;
     }
 
     private Token peek() {
@@ -191,5 +196,4 @@ class Parser {
             advance();
         }
     }
-
 }
