@@ -9,3 +9,5 @@ target/classes/com/learn/*.class
 target/classes/com/learn/tool/*.class
 src/main/java/com/learn/aise.lox
 target/classes/com/learn/aise.lox
+src/main/java/com/learn/program.lox
+target/classes/com/learn/program.lox
