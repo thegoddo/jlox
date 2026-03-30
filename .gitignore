@@ -8,5 +8,4 @@ target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst
 target/classes/com/learn/*.class
 target/classes/com/learn/tool/*.class
 src/main/java/com/learn/aise.lox
-src/main/java/com/learn/AstPrinter.java
 target/classes/com/learn/aise.lox
