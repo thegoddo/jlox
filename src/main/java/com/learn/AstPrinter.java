@@ -1,6 +1,7 @@
 package com.learn;
 
 import com.learn.Expr.Assign;
+import com.learn.Expr.Logical;
 import com.learn.Expr.Variable;
 
 // Creates an unambiguous, if ugly, string representation of AST nodes.
@@ -66,5 +67,11 @@ class AstPrinter implements Expr.Visitor<String> {
     public String visitAssignExpr(Assign expr) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'visitAssignExpr'");
+    }
+
+    @Override
+    public String visitLogicalExpr(Logical expr) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visitLogicalExpr'");
     }
 }
