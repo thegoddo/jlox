@@ -1,6 +1,7 @@
 package com.learn;
 
 import com.learn.Expr.Assign;
+import com.learn.Expr.Call;
 import com.learn.Expr.Logical;
 import com.learn.Expr.Variable;
 
@@ -73,5 +74,11 @@ class AstPrinter implements Expr.Visitor<String> {
     public String visitLogicalExpr(Logical expr) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'visitLogicalExpr'");
+    }
+
+    @Override
+    public String visitCallExpr(Call expr) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visitCallExpr'");
     }
 }
