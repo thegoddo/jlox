@@ -357,7 +357,7 @@ class Parser {
         }
 
         if (match(THIS))
-            return Expr.This(previous());
+            return new Expr.This(previous());
 
         if (match(IDENTIFIER)) {
             return new Expr.Variable(previous());

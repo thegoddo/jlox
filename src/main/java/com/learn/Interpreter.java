@@ -1,8 +1,8 @@
 package com.learn;
 
-import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
@@ -21,12 +21,6 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
             public Object call(Interpreter interpreter, List<Object> arguments) {
                 return (double) System.currentTimeMillis() / 1000.0;
             }
-
-            @Override
-            public String toString() {
-                return "<native fn>";
-            }
-
         });
     }
 
@@ -50,17 +44,19 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     void executeBlock(List<Stmt> statements, Environment environment) {
         Environment previous = this.environment;
-
         try {
             this.environment = environment;
 
             for (Stmt statement : statements) {
                 execute(statement);
             }
-
         } finally {
             this.environment = previous;
         }
+    }
+
+    private Object evaluate(Expr expr) {
+        return expr.accept(this);
     }
 
     @Override
@@ -71,8 +67,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitClassStmt(Stmt.Class stmt) {
-        environment.define(stmt.name.lexeme, stmt);
-
+        environment.define(stmt.name.lexeme, null);
         Map<String, LoxFunction> methods = new HashMap<>();
         for (Stmt.Function method : stmt.methods) {
             LoxFunction function = new LoxFunction(method, environment, method.name.lexeme.equals("init"));
@@ -84,10 +79,6 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         return null;
     }
 
-    private Object evaluate(Expr expr) {
-        return expr.accept(this);
-    }
-
     @Override
     public Void visitExpressionStmt(Stmt.Expression stmt) {
         evaluate(stmt.expression);
@@ -96,7 +87,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitFunctionStmt(Stmt.Function stmt) {
-        LoxFunction function = new LoxFunction(stmt, environment);
+        LoxFunction function = new LoxFunction(stmt, environment, false);
         environment.define(stmt.name.lexeme, function);
         return null;
     }
@@ -108,7 +99,6 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         } else if (stmt.elseBranch != null) {
             execute(stmt.elseBranch);
         }
-
         return null;
     }
 
@@ -157,6 +147,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         } else {
             globals.assign(expr.name, value);
         }
+
         return value;
     }
 
@@ -201,8 +192,6 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
             case STAR:
                 checkNumberOperands(expr.operator, left, right);
                 return (double) left * (double) right;
-            default:
-                break;
         }
 
         // Unreachable.
@@ -219,15 +208,15 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         }
 
         if (!(callee instanceof LoxCallable)) {
-            throw new RuntimeError(expr.paren, "Can only call functions and classess");
+            throw new RuntimeError(expr.paren, "Can only call functions and classes.");
         }
 
         LoxCallable function = (LoxCallable) callee;
         if (arguments.size() != function.arity()) {
-            throw new RuntimeError(expr.paren, "Expected " +
-                    function.arity() + " arguments but got " +
-                    arguments.size() + ".");
+            throw new RuntimeError(expr.paren,
+                    "Expected " + function.arity() + " arguments but got " + arguments.size() + ".");
         }
+
         return function.call(this, arguments);
     }
 
@@ -238,7 +227,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
             return ((LoxInstance) object).get(expr.name);
         }
 
-        throw new RuntimeError(expr.name, "Only instance have properties.");
+        throw new RuntimeError(expr.name, "Only instances have properties.");
     }
 
     @Override
@@ -280,7 +269,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
 
     @Override
-    public Objectj visitThisExpr(Expr.This expr) {
+    public Object visitThisExpr(Expr.This expr) {
         return lookUpVariable(expr.keyword, expr);
     }
 
@@ -294,8 +283,6 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
             case MINUS:
                 checkNumberOperand(expr.operator, right);
                 return -(double) right;
-            default:
-                break;
         }
 
         // Unreachable.
@@ -309,7 +296,6 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     private Object lookUpVariable(Token name, Expr expr) {
         Integer distance = locals.get(expr);
-
         if (distance != null) {
             return environment.getAt(distance, name.lexeme);
         } else {
