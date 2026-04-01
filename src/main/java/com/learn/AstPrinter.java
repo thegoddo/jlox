@@ -2,7 +2,10 @@ package com.learn;
 
 import com.learn.Expr.Assign;
 import com.learn.Expr.Call;
+import com.learn.Expr.Get;
 import com.learn.Expr.Logical;
+import com.learn.Expr.Set;
+import com.learn.Expr.This;
 import com.learn.Expr.Variable;
 
 // Creates an unambiguous, if ugly, string representation of AST nodes.
@@ -80,5 +83,23 @@ class AstPrinter implements Expr.Visitor<String> {
     public String visitCallExpr(Call expr) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'visitCallExpr'");
+    }
+
+    @Override
+    public String visitGetExpr(Get expr) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visitGetExpr'");
+    }
+
+    @Override
+    public String visitSetExpr(Set expr) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visitSetExpr'");
+    }
+
+    @Override
+    public String visitThisExpr(This expr) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visitThisExpr'");
     }
 }
