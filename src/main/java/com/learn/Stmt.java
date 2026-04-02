@@ -26,8 +26,9 @@ abstract class Stmt {
         final List<Stmt> statements;
     }
     static class Class extends Stmt {
-        Class(Token name, List<Stmt.Function> methods) {
+        Class(Token name, Expr superclass, List<Stmt.Function> methods) {
             this.name = name;
+            this.superclass = superclass;
             this.methods = methods;
         }
 
@@ -36,6 +37,7 @@ abstract class Stmt {
         }
 
         final Token name;
+        final Expr superclass;
         final List<Stmt.Function> methods;
     }
     static class Expression extends Stmt {
@@ -50,9 +52,9 @@ abstract class Stmt {
         final Expr expression;
     }
     static class Function extends Stmt {
-        Function(Token name, List<Token> params, List<Stmt> body) {
+        Function(Token name, List<Token> parameters, List<Stmt> body) {
             this.name = name;
-            this.params = params;
+            this.parameters = parameters;
             this.body = body;
         }
 
@@ -61,7 +63,7 @@ abstract class Stmt {
         }
 
         final Token name;
-        final List<Token> params;
+        final List<Token> parameters;
         final List<Stmt> body;
     }
     static class If extends Stmt {
