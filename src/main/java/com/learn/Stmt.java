@@ -52,9 +52,9 @@ abstract class Stmt {
         final Expr expression;
     }
     static class Function extends Stmt {
-        Function(Token name, List<Token> parameters, List<Stmt> body) {
+        Function(Token name, List<Token> params, List<Stmt> body) {
             this.name = name;
-            this.parameters = parameters;
+            this.params = params;
             this.body = body;
         }
 
@@ -63,7 +63,7 @@ abstract class Stmt {
         }
 
         final Token name;
-        final List<Token> parameters;
+        final List<Token> params;
         final List<Stmt> body;
     }
     static class If extends Stmt {
